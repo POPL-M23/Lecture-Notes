@@ -1,0 +1,44 @@
+\section{Lecture 5}
+
+\subsection{Terms}
+
+\paragraph{ARS} Abstract Reduction System
+
+\paragraph{Terminating ARS} An ARS is terminating \emph{iff.} it has no infinite runs.
+
+\subsection{Well Founded Induction(WFI)}
+
+This is property of an abstract reduction system. A system having this property implies that,
+
+$$
+\forall x \in A \ \left[ \forall y \in A, x \successor y \implies P(y) \right] \implies P(x)
+$$
+
+in other words,
+$P(x)$ is satisfied if $\forall y, x \successor y$, $P(y)$ is satisfied.
+
+\begin{theorem}
+    Let, $(A, \longrightarrow)$ be an ARS, then $A$ satisfies WFI iff. $(A, \longrightarrow)$ is terminating.
+\end{theorem}
+
+\begin{proof}
+    \textbf{TODO}
+    \text{} \\
+    \textbf{1. $(A, \longrightarrow)$ terminates $\implies A$ satisfies WFI.} \\
+    \\
+    \textbf{2. $A$ satisfies WFI $\implies (A, \longrightarrow)$ terminates.}
+\end{proof}
+
+\subsection{Confluence}
+
+Order of evaluation does not matter.
+
+\paragraph{Joinable} $x$ and $y$ are joinable, denoted by $\downarrow$ \emph{iff.} they have the same normal form.
+
+\paragraph{Local Confluence} An element $x \in A$ is said to be locally confluent if $\forall y, z \in A, x \successor y, z$ $\exists w : y \too w, z \too w$, in other words, $y \downarrow z$.
+
+\paragraph{\rightarrow} If a system is terminating and has local confluence for all vertices, then the system has confluence.
+
+\subsection{Interative Evaluation}
+
+\textbf{TODO}

@@ -11,6 +11,16 @@
 \declaretheoremstyle[name=Definition,]{prosty}
 \declaretheorem[style=prosty,numberlike=theorem]{definition}
 
+\newtheorem{lemma}{Lemma}[section]
+
+\newcommand*{\successor}{%
+    \stackrel{\scriptscriptstyle\!+\!}\longrightarrow%
+}
+
+\newcommand*{\too}{%
+    \stackrel{\scriptscriptstyle\!*\!}\longrightarrow%
+}
+
 \begin{document}
 
 \title{Lecture Notes}
@@ -21,5 +31,6 @@
 \newpage
 
 \input{notes/lecture3.tex}
+\input{notes/lecture-5.tex}
 
 \end{document}
