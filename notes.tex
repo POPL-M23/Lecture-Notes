@@ -1,5 +1,16 @@
 \documentclass{article}
 
+\usepackage{amsmath, amsthm, mathtools}
+\usepackage{thmtools}
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+
+\declaretheoremstyle[name=Theorem,]{thmsty}
+\declaretheorem[style=thmsty,numberwithin=section]{theorem}
+
+\declaretheoremstyle[name=Definition,]{prosty}
+\declaretheorem[style=prosty,numberlike=theorem]{definition}
+
 \begin{document}
 
 \title{Lecture Notes}
@@ -8,5 +19,7 @@
 
 \tableofcontents
 \newpage
+
+\input{notes/lecture3.tex}
 
 \end{document}
