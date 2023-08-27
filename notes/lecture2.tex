@@ -1,0 +1,135 @@
+\section{Lecture 2}
+\subsection{Abstract Reduction System}
+An abstract reduction system is a binary relation $\rightarrow$ over a set of elements $A$.
+
+\subsection{Other Relations defined on $\protect\overrightarrow{A}$}
+\begin{description}[labelsep=4em, align=left, labelwidth=2in]
+
+\item[Identity] $\overrightarrow{A^0} = \{(a, a): a \in A\}$
+
+\item[Reflexive Closure] $\overrightarrow{A^=} = \overrightarrow{A} \cup \overrightarrow{A^0}$
+
+\item[Inverse] $\overrightarrow{A^{-1}} = \{(b, a): a \xrightarrow[A]{} b\}$
+
+\item[Transitive Closure] $\overrightarrow{A^+} = \bigcup\limits_{i \, > \, 0} \overrightarrow{A^i}$
+
+\item[Reflexive Transitive Closure] $\overrightarrow{A^*} = \overrightarrow{A^+} \cup \overrightarrow{A^0}$
+
+\item[Symmetric closure] $\overrightarrow{A^\leftrightarrow} = \overrightarrow{A} \cup \overrightarrow{A^{-1}}$
+
+\end{description}
+
+\vspace{2em}
+
+\textbf{Note:} Pay attention to the order of terms in the name of the relations. For example, the transitive symmetric closure isn't necessarily the same as the symmetric transitive closure. Consider the following relation graph to demonstrate this.
+
+\vspace{2em}
+
+\begin{figure}[!h]
+\centering
+\begin{tikzpicture}
+	\node (a) [state] {$a$};
+	\node (b) [state, below right = of a] {$b$};
+	\node (c) [state, below left = of a] {$c$};
+	
+	\path [-stealth, thick]
+		(a) edge node {} (b)
+		(a) edge node {} (c);
+		
+\end{tikzpicture}
+\end{figure}
+
+\begin{align*}
+{(A^\leftrightarrow)}^* &= \{(a, a), (a, b), (a, c), (b, a), (b, b), (b, c), (c, a), (c, b), (c, c)\}\\ 
+{({A^*})}^\leftrightarrow &= \{(a, b), (a, c), (b, a), (c, a)\}
+\end{align*}
+
+\newpage
+\subsection{Terminology}
+
+\subsubsection{Describing the elements and their relations}
+
+\begin{itemize}
+\item $x$ is reducible if $\exists \, x'$ such that $x \xrightarrow[A]{} x'$.
+
+\item $\theta: F \rightarrow E$ is called an \textbf{invariant} if $\forall x \in A, \theta(x) = \theta(F(x))$. For example, for the run $x_0 \xrightarrow[F]{} x_1 \xrightarrow[F]{} x_2 \xrightarrow[F]{} \cdots$, it must hold that $\theta(x_0) = \theta(x_1) = \theta(x_2) = \cdots$.
+
+\item $x$ is in \textbf{normal form} if it is not reducible.
+
+\item $x$ \textbf{simplifies to} $x'$ in $A$ iff $x \xrightarrow[A^*]{} x'$.
+
+\item $x'$ is a normal form of $x$ in $A$ if: 
+\begin{itemize}
+\item $x'$ is in normal form
+\item $x$ simplifies to $x'$
+\end{itemize}
+
+\item $x$ has a normal form in $A$ if $\exists \, x' \in A$ such that $x'$ is a normal form of $x$.
+
+\item $x'$ is an \textbf{immediate successor} of $x$ if $x \xrightarrow[A]{} x'$.
+
+\item $x'$ is a \textbf{proper successor} of $x$ if $x \xrightarrow[A^+]{} x'$.
+
+\item $x'$ is a \textbf{successor} of $x$ if $x \xrightarrow[A^*]{} x'$.
+
+\item Two elements $a$ and $b$ in $A$ are \textbf{joinable} if $\exists \, c \in A$ such that $a \xrightarrow[A^*]{} c$ and $b \xrightarrow[A^*]{} c$. This is denoted as $a \downarrow b$.
+
+\item $a$ and $b$ are \textbf{connected} in $A$ if $a \xrightarrow[{(A^\leftrightarrow)}^*]{} b$
+
+\end{itemize}
+
+\subsubsection{Describing the system as a whole}
+
+\begin{itemize}
+
+\item $\overrightarrow{A}$ is terminating if there is no infinite run: $a_0 \rightarrow a_1 \rightarrow \cdots$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+	\node (a) [state] {$a$};
+	
+	\path [-stealth, thick]
+		(a) edge [loop right] node {} (a);
+		
+\end{tikzpicture}
+\caption{A non-terminating relation graph}
+\end{figure}
+
+\item $\overrightarrow{A}$ is normalising if every element has a normal form.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+	\node (a) [state] {$a$};
+	\node (b) [state, left = of a] {$b$};
+	
+	\path [-stealth, thick]
+		(a) edge [loop right] node {} (a)
+		(a) edge node {} (b);
+		
+\end{tikzpicture}
+\caption{A normalising, non-terminating relation graph}
+\end{figure}
+
+\item $\overrightarrow{A}$ is confluent if $\forall a, b, c \in A$ such that $a \xrightarrow[A^*]{} b, a \xrightarrow[A^*]{} c$, it must hold that $b \downarrow c$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+	\node (a) [state] {$a$};
+	\node (b) [state, below right = of a] {$b$};
+	\node (c) [state, below left = of a] {$c$};
+	\node (d) [state, below right = of c] {$d$};
+	
+	\path [-stealth, thick]
+		(a) edge node {} (b)
+		(a) edge node {} (c)
+		(b) edge [dashed] node {} (d)
+		(c) edge [dashed] node {} (d);
+		
+\end{tikzpicture}
+\caption{A visual representation of confluence}
+\end{figure}
+
+\end{itemize}
