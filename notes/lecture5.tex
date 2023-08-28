@@ -1,0 +1,50 @@
+\section{Lecture 5}
+
+\subsection{Terms}
+
+\paragraph{ARS} Abstract Reduction System
+
+\paragraph{Terminating ARS} An ARS is terminating \emph{iff.} it has no infinite runs.
+
+\subsection{Well Founded Induction(WFI)}
+
+This is property of an abstract reduction system. A system having this property implies that,
+
+$$
+\forall x \in A. \left( \forall y \in A. \ x \successor y \implies P(y) \right) \implies P(x)
+$$
+
+in other words,
+$P(x)$ is satisfied if $\forall y. x \successor y \implies P(y)$ is satisfied.
+
+\begin{theorem}
+    Let, $(A, \longrightarrow)$ be an ARS, then $A$ satisfies WFI iff. $(A, \longrightarrow)$ is terminating.
+\end{theorem}
+
+\begin{proof}
+    \text{} \\
+    \textbf{1. If $\longrightarrow$ terminates, then $A$ satisfies WFI.} \\
+    \emph{Proof by contraposition.} Assume that WFI does not hold. \\
+    That implies that $\neg P(a_0)$ for some $a_0 \in A$. Since we assumed that WFI does not hold, $\exists a_1$, such that, $a_0 \successor a_1$ and $\neg P(a_1)$. Using the same arguement, $\exists a_2$, such that, $a_1 \successor a_2$ and $\neg P(a_2)$. Hence there is an infinite chain $a_0 \successor a_1 \successor a_2 \successor ...$, i.e. $\longrightarrow$ does not terminate. \\
+    \\
+    \textbf{2. If $A$ satisfies WFI, then $\longrightarrow$ terminates.} \\
+    \emph{Proof by WFI.} Let,
+    $$
+    P(x) := \text{there is no infinite chain starting from x}.
+    $$
+    Clearly, if there is no infinite chain starting from any successor of $x$, then there is no infinite chain starting from $x$. Hence, WFI holds and we can conclude that $P(x)$ holds for all $x$, i.e., $\longrightarrow$ terminates.
+\end{proof}
+
+\subsection{Confluence}
+
+Order of evaluation does not matter.
+
+\paragraph{Joinable} $x$ and $y$ are joinable, denoted by $\downarrow$ \emph{iff.} they have the same normal form.
+
+\paragraph{Local Confluence} An element $x \in A$ is said to be locally confluent if $\forall y, z \in A, z \lsuccessor x \successor y$ $\exists w : y \too w \ltoo z$, in other words, $y \downarrow z$.
+
+\paragraph{$\rightarrow$} If a system is terminating and has local confluence for all vertices, then the system has \textbf{confluence}.
+
+\subsection{Interative Evaluation}
+
+\textbf{TODO}
