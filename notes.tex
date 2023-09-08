@@ -3,6 +3,15 @@
 \usepackage{amsmath, amsthm, mathtools}
 \usepackage{thmtools}
 
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{pdfpages}
+\usepackage{float}
+\usepackage{tikz}
+
+
+\usetikzlibrary{automata, arrows.meta, positioning}
+
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
 
 \declaretheoremstyle[name=Theorem,]{thmsty}
@@ -38,7 +47,8 @@
 \tableofcontents
 \newpage
 
-
+\input{notes/lecture2.tex}
+\newpage
 \input{notes/lecture3.tex}
 \newpage
 \input{notes/lecture4.tex}
