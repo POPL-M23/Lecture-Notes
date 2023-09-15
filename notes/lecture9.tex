@@ -1,0 +1,153 @@
+\chapter{Lecture 9}
+\chapterauthor{Pranav Subramaniam}
+
+% for antecedent-consequent expressions
+\newcommand\bigfrac[2]{%
+  \begin{array}{c}
+    #1 \\
+    \hline
+    #2
+  \end{array}}
+
+\section{Overview of Programming Languages}
+
+\subsection{Mathematical Foundation}
+\begin{enumerate}
+	\item Before lambda-calculus ("Pre-history" of computing)
+	
+	\begin{enumerate}
+		\item Set Theory
+	\end{enumerate}
+	\begin{enumerate}
+		\item First-Order Logic
+	\end{enumerate}
+	\begin{enumerate}
+		\item Combinatory Logic
+	\end{enumerate}
+	
+	\item Predecessor to Programming Languages \newline
+	Provided mathematical framework for programming languages and computing
+	
+	\begin{enumerate}
+		\item Category Theory
+		\item $\lambda$ Calculus $\equiv$ Turing Machines (1930s)
+		\begin{enumerate}
+			\item $\lambda$ Calculus
+			\begin{enumerate}
+				\item Framework for programming language design
+				\item Basis for functional programming
+			\end{enumerate}
+			\item Turing Machines
+			\begin{enumerate}
+				\item Computability, complexity, determinism
+				\item Related work- Von Neumann architecture, Kurt Gödel's incompleteness theorem
+			\end{enumerate}
+		\end{enumerate}
+	\end{enumerate}
+	
+\end{enumerate}
+
+\subsection{History}
+\begin{table}[H]
+  \begin{tabular}{|c|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|}
+    \hline
+    \textbf{S No.} & \textbf{Functional Languages} & \textbf{Imperative Languages} & \textbf{OOP} & \textbf{PROLOG (Logic Programming)} & \textbf{Concurrent Distributed Programing Languages} \\
+    \hline
+    1 & Lisp (1959) & FORTRAN (1957) & Simula- Simulation-oriented, (Dahl and Nygaard - 1996) & Prolog (Colmerauer, 1971) & CSP (Communicating Sequential Processes), (Hoare, 1978) \\
+    2 & Landin- SECD Machine (1964) & ALGOL (1968) & CLOS (1988) & & $\Pi$ Calculus, (Milner, 1990s) \\
+    3 & Scheme (1977) & Pascal (1970) & C++ (1985) & & \\
+    4 & ML (1973) (feature- types) & C (1972) & Java (1985) & & \\
+    5 & Haskell (1987) (feature- types) Purely function language & & C\# (2000) & & \\
+    6 & Racket & & & \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\section{Closures: Functions as values}
+\underline{Higher-order functions} can take functions as arguments and can return functions.
+
+\begin{verbatim}
+> (define add
+      (lambda (x y)
+          (+ x y)))
+\end{verbatim}
+Add function can be rewritten as-
+\begin{verbatim}
+> (define add
+      (lambda (x) ;;  lambda (x) takes x, returns a function lambda (y)
+          (lambda (y)
+              (+ x y)))
+> (add 3)          
+#(procedure>
+> ((add 3) 4)
+7
+\end{verbatim}
+
+Examples of higher-order functions include computing derivatives- ($\frac{d}{dx}$ takes $f$, returns $f'$) and function composition ($h$ = $f$ $\circ$ $g$)\newline\newline
+Higher-order functions require the domain for expressible values to contain functions-\newline
+\[EXPVAL = NUM \quad | \quad BOOL \quad | \quad FUNCTION\]
+
+
+\subsection{Functional Language}
+Recall the ojective to build a program to compute expressions of numbers. We add the Functional Language to the langauge previously consisting of Arithmetic, IF+DIV, Global and Lexical Scope components.\\
+\subparagraph{Abstract Syntax}
+\[
+e ::=
+\begin{array}{ll}
+    \overline{n} \qquad \text{ NUM}\\
+    \overline{b} \qquad\text{ BOOL}\\
+    ifte \qquad e \text{ } e \text{ } e\\
+    \lambda \qquad \overline{x} \text{ ... }e\\    
+    @ \qquad e \text{ } e \text{ ...}
+\end{array}
+\]
+\newline
+Abstract syntax form- (number, boolean, if-then-else, procedure, application)\newline
+Notice Arithmetic operators and LET are replaced by $\lambda$ and @.
+
+\subparagraph{Concrete Syntax}
+\begin{align}
+(let\text{ }([x\text{ }e]\text{ ...}) \textit{ body}) = ((& \lambda\text{ }(x\text{ ...})\nonumber \\&\qquad \textit{body})\nonumber \\&\quad e\text{ ...}) \nonumber
+\end{align}
+
+\subsection{Evaluation Semantics}
+Expressible values -\newline
+\begin{align}
+EXPVAL &= NUM \oplus BOOL \oplus FUNCTION \nonumber \\
+DENVAL &= EXPVAL \nonumber
+\end{align}
+\\\underline{NOTE}: Evaluation semantics of a good language design requires precision to ensure bug-free logic and language. Ideally, EXPVAL should be partioned completely and thus should be a disjoint union.\newline
+Example: integer datatypes in C allows pointer values. Better design-
+\[EXPVAL = NUM \oplus BOOL \oplus POINTER \]
+
+\subparagraph{Rules:}
+
+
+For grammar $\Gamma$, expression $e$, EXPVAL $v$-
+\[\Gamma \vdash e \Rightarrow v \]
+($\vdash$: Turnstile operator, expression reads "Under $\Gamma$, e evaluates to v) \newline
+
+\begin{enumerate}
+\item $\bigfrac{}{\Gamma \vdash \overline{n} \Rightarrow n}$ NUM
+\item $\bigfrac{}{\Gamma \vdash \overline{b} \Rightarrow b}$ BOOL
+\item $\bigfrac{\Gamma(x) = v}{\Gamma \vdash x \Rightarrow v}$ ID
+\item $\bigfrac{\Gamma \vdash e_{1} \Rightarrow \#t \quad \Gamma \vdash e_{2} \Rightarrow v_{2}}{\Gamma \vdash \textit{ifte } e_{1} \text{ } e_{2} \text{ } e_{3} \Rightarrow v_{2}}$ IFTE-TRUE
+\item $\bigfrac{\Gamma \vdash e_{1} \Rightarrow \#f \quad \Gamma \vdash e_{3} \Rightarrow v_{3}}{\Gamma \vdash \textit{ifte } e_{1} \text{ } e_{2} \text{ } e_{3} \Rightarrow v_{3}}$ IFTE-FALSE
+\end{enumerate}
+
+Building an application:
+$\bigfrac{}{\Gamma \vdash (\lambda \text{ } (x \text{ ... }) \text{ } e) \Rightarrow v}$
+
+
+\subsection{Lexical Scope vs Dynamic Scope}
+Racket code demonstrating lexical scope\newline
+\begin{verbatim}
+> (let ([x 5])
+    (let ([f (lambda (y)   ;; lexical scope
+               (+ x y))])
+      (let ([x 0])         ;; dynamic scope
+        (f 3))))
+8
+\end{verbatim}
+
+Lexical scope gives returns 8, dynamic scope returns 3.
