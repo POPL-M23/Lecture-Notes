@@ -1,0 +1,60 @@
+\chapter{Lecture X}
+\chapterauthor{Mayank Shukla}
+
+\section{Functions as Values}
+ExpVal = Num \textbar\; Bool \textbar\; Function
+\\ DenVal = ExpVal
+
+\\ \\ Env = $Id \xrightarrow{\mathit{f_{in}}} DenVal$ 
+\\ \\ eval AST : $AST \rightarrow expVal . \;\; \uparrow err$
+\\ Proc = Prim-proc \textbar\; Closure
+\\ Closure = Formals x exp x Env
+$$C = <\overrightarrow{x},e,\gamma>$$
+\\ Op : + \textbar\; - \textbar\; * \textbar\; / 
+\\ Sig:
+\\ + : Num \times Num \rightarrow Num
+\\ / : Num \times Non-zero \; Num \rightarrow Num 
+\\ \\ Prim-proc : Op \times Sig
+
+\section{Rules}
+\par\hrulefill{\textwidth}CLO
+\\$\gamma$ \textbar\; $\lambda$ \overrightarrow{x} \; e \; \; $\Rightarrow$ \; \; $<\overrightarrow{x},e,\gamma>$
+
+\vspace{10mm}
+$\gamma$ \textbar \; $e_{1} \Rightarrow v_{1} . . . $ \hspace{1cm} $\gamma$ \textbar\; e \Rightarrow Prim-proc(Op) \hspace{1cm}  $Op v_{1} . . . \Rightarrow v$
+\par\hrulefill{\textwidth}PRIM-APP
+\\ $\gamma$ \textbar\; $@ \; e \; e_{1} . . . \Rightarrow v$
+
+
+\vspace{10mm}
+$\gamma$ \textbar\; $e \Righarrow <\overrightarrow{x},\; e', \gamma'>$ \hspace{1cm} $\gamma$ \textbar\; $e_1 \Rightarrow v_1 . . .$ \hspace{1cm} 
+\{$x_1 \rightarrow v_1 . . .$\} $\gamma'$ \textbar\; $e' \Rightarrow v$
+\par\hrulefill{\textwidth}CLO-APP
+\\ $\gamma$ \textbar\; $@ \; e \; e_1 \; \Rightarrow v$
+
+\vspace{2cm}
+
+\section{Example}
+$\gamma$ \textbar\; ((\; $\lambda (\; x \; y \;) ( + \; x \; y\;))\; 2 \; 3\;)$ \Rightarrow 5
+\\ \\ where\; $\gamma = \{ + : Prim-proc(ADD), . . . \}$
+
+\subsection{Proof:} 
+\begin{enumerate}
+  \item $\alpha = \{ x \rightarrow 2, y \rightarrow 3 \}$ \hspace{1cm} ASSUMPTION
+  \item $\alpha \gamma (x) = 2$ \hspace{1cm} By definition of Env composition
+  \item $\alpha \gamma$ \textbar\; $x \Rightarrow 2$ \hspace{1cm} ID
+  \item $\alpha \gamma (y) = 3$ \hspace{1cm} By definition of Env composition
+  \item $\alpha \gamma$ \textbar\; $y \Rightarrow 3$ \hspace{1cm} ID
+  \item $\alpha \gamma (+) = Prim-proc(ADD)$ \hspace{1cm} By definition of lookup Env
+  \item $\alpha \gamma$ \textbar\; $+ \Rightarrow Prim-proc(ADD)$
+  \item $\alpha \gamma$ \textbar\; $(\; + \; x \; y\;) \Rightarrow 5$ \hspace{1cm} PRIM-APP (7,3,2)
+  \item $\gamma$ \textbar\; $\Bar{2} \Rightarrow 2$ \hspace{1cm} CONST
+  \item $\gamma$ \textbar\; $\Bar{3} \Rightarrow 3$ \hspace{1cm} CONST
+  \item $\gamma$ \textbar\; $(\lambda (\; x \; y \;) ( + \; x \; y\;))\; \Rightarrow\; <(x,y),(\;+ \; x \; y \;), \gamma> = C$ \hspace{5mm} CLO
+  \item $\gamma$ \textbar\; $((\;\lambda (\; x \; y \;) ( + \; x \; y\;))\; 2 \; 3\;)\; \Rightarrow\; 5$ \hspace{5mm} CLO-APP (11,8,9,10)
+\end{enumerate}
+
+
+
+
+\end{document}
