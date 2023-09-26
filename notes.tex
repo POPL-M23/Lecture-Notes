@@ -11,7 +11,7 @@
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
-\usepackage{array}
+
 \usetikzlibrary{automata, arrows.meta, positioning}
 
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
@@ -48,6 +48,20 @@
   \@afterheading%
 }
 \makeatother
+
+\makeatletter
+% \overarrow@ and \arrowfill@ are defined in amsmath
+\newcommand*{\overrightharpoonup}{\mathpalette{\overarrow@\rightharpoonupfill@}}
+\newcommand*{\rightharpoonupfill@}{\arrowfill@\relbar\relbar\rightharpoonup}
+\makeatother
+
+\DeclareFontFamily{U}{matha}{\hyphenchar\font45}
+\DeclareFontShape{U}{matha}{m}{n}{
+      <5> <6> <7> <8> <9> <10> gen * matha
+      <10.95> matha10 <12> <14.4> <17.28> <20.74> <24.88> matha12
+      }{}
+\DeclareSymbolFont{matha}{U}{matha}{m}{n}
+\DeclareMathSymbol{\varrightharpoonup}{3}{matha}{"E1}
 
 \begin{document}
 
