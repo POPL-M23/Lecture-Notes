@@ -1,0 +1,262 @@
+\chapter{Lecture 12}
+\chapterauthor{Amitabh Paliwal}
+
+\section{Self Reference}
+
+The function refers to itself in its body.
+
+Example:
+\begin{lstlisting}
+    (define fac 
+        (lambda (n)
+            (if (= n 0) 
+            1
+            (* n (fac (sub1 n))))))
+\end{lstlisting}
+Here fac refers to fac. Also the function in the body is free.
+
+\section{Self Application}
+A function is applied to itself.
+
+Eg. Function
+\begin{lstlisting}
+    (define id
+        (lambda (x) x))
+\end{lstlisting}
+
+Its self-application
+\begin{lstlisting}
+    (id id)
+\end{lstlisting}
+
+\section{Curried Functions}
+Suppose we need to represent a function of function then we write
+
+\begin{lstlisting}
+    ((f y) x)
+\end{lstlisting}
+
+The same can be represented by
+
+\begin{lstlisting}
+    (:f y x)
+\end{lstlisting}
+
+where : denotes application.
+
+A curried function will evaluate a sequence of functions each with a single argument.
+
+Eg.
+
+\begin{lstlisting}
+    (: f x) = (f x)
+    
+    (: f x y) = ((f x) y)
+
+    (: f x1 x2 x3) = (((f x1) x2) x3)
+
+    (lambda (x)             =    (lambda: (x y) e)
+        (lambda (y) e))
+\end{lstlisting}
+
+A curried version of add
+
+\begin{lstlisting}
+    (define +:
+        (lambda (x)
+            lambda (y)
+                (+ x y)))
+\end{lstlisting}
+
+\section{Redefining factorial}
+
+\begin{lstlisting}
+    (define: (G f n)
+        (if (= n 0) 1)
+            (* n (f (sub1 n))))
+\end{lstlisting}
+
+Here the 'f' is bound but in the earlier version of factorial it was free.
+It has no recursion.
+
+G takes a function as input. Any function can be passed.
+
+Eg.
+
+\begin{lstlisting}
+    (: G add1 3)
+    = (* 3 (add1 (sub1 3)))
+    = 9
+
+    (: G (lambda(x) (* x x)) 2)
+    = (* 2 ((lambda(x) (* x x)) 1))
+    = 2
+
+    (: G fac 3)
+    = (* 3 (fac (sub1 3)))
+    = (* 3 (fac 2))
+    = 6
+\end{lstlisting}
+
+\section{Self-application to define factorial}
+
+\begin{lstlisting}
+    (define: (H f n)
+        (if (= n 0)
+            1
+            (* n ((f f) (sub1 n)))))
+\end{lstlisting}
+
+We can say
+
+\begin{lstlisting}
+    (: H f n) = (: G (f f) n)
+\end{lstlisting}
+
+Getting a feel of H
+
+\begin{lstlisting}
+    (: H I 3)
+    = (* 3 ((I I) 2))
+    = (* 3 (I 2))
+    = (* 3 2)
+    = 6
+
+    (: H add1 3)
+    = (* 3 ((add1 add1) 2))
+\end{lstlisting}
+
+But add1 cannot accept a procedure as argument and it throws an error.
+
+H is specific about what can be passed to it. Function that takes a function as input and returns a number. (H H) returns a function on numbers.
+We can define this function as a function 'p'.
+
+\begin{lstlisting}
+    (define p (H H))
+
+    (p 0)
+    = (: H H 0)
+    = (if (= 0 0) 1 ...)
+    = 1
+
+    (p 1)
+    = (: H H 1)
+    = (if (= 0 1) 1
+            (* 1((H H) 0)))
+    = (* 1 1)
+    = 1
+
+    (p 2)
+    = (* 2 ((H H) 1))
+    = (* 2 (p 1))
+    = (* 2 1)
+    = 2
+\end{lstlisting}
+
+p behaves like a factorial function.
+
+Now we can say
+
+\begin{lstlisting}
+    (H/G f n) = (: G (f f) n)
+
+Also
+    (: H/G H/G n) = (: G (H/G H/G) n)
+then
+    (H/G H/G) = (G (H/G H/G))
+\end{lstlisting}
+
+this is a fixed-point of G. The fixed-point gives us recursion. So we need functions that get us the fixed-point.
+
+\section{Y-combinator}
+
+\begin{lstlisting}
+    (Y g) = (let ([s(lambda (x)
+                    (g (x x)))]) (s s))
+
+    We can also say,
+        (Y g) = (s s) where (s x) = (g (x x))
+\end{lstlisting}
+
+Now,
+
+\begin{lstlisting}
+    (Y g) = (s s)
+          = ((lambda(x)(g (x x))) (lambda(x)(g (x x))))
+          = (g (s s))
+          = (g (Y g))
+\end{lstlisting}
+
+This is a fixed-point which allows us to get recursion.
+
+So, factorial = (Y G).
+\\ G is written to extract the factorial recursion using Y.
+
+Example:
+
+\begin{lstlisting}
+    (: Y G 2)
+    = (: s s 2)  where s = (lambda (x) (G (x x)))
+    = ((s s) 2)
+    = ((G (s s)) 2)
+    = (: G (s s) 2)
+    = (if (= 0 2) 1
+        (* 2 (: s s 1)))
+    = (* 2 (: G (s s) 1))
+    = (* 2 (if (= 0 1) 1
+            (* 1 (: s s 0))))
+    = (* 2 (* 1 (if (= 0 0) 1
+                    (* 0 (: G (s s) (sub1 0))))))
+    = (* 2  1 1)
+    = 2
+\end{lstlisting}
+
+This allows us to shrink our language as recursion is handled by
+the function application and abstraction.
+
+\subsection{Concern}
+
+Non-termination is a concern in the Y-combinator approach.
+In case of lazy-evaluation there is no problem, but an evaluation
+strategy like racket's fails. Applicative order strategies lead to
+non-terminating sequences.
+
+Example of non-termination
+
+\begin{lstlisting}
+    (: Y G 2)
+    = (: G (s s) 2))
+    = (: G (: G (s s)) 2)
+    = (: G (: G (: G (s s) 2)))
+\end{lstlisting}
+\section{Z-combinator}
+
+This works in applicative order evaluation. Just wrap things in a lambda.
+
+\begin{lstlisting}
+    (define (Z g)
+        (let ([s (lambda (x)
+                (g (lambda (n) (: x x n))))])
+            (s s)))
+
+    We can also say:
+        (Z g) = (g (lambda (n) (: s s n)))
+\end{lstlisting}
+
+Example:
+
+\begin{lstlisting}
+    (: Z G 2)
+    = (: G (s s) 2)
+    = (: G (lambda (n) (: s s n)) 2)
+    = (if (= 0 2) 1
+        (* 2 (: s s 1)))
+    = (* 2 (: s s 1))
+    = (* 2 (: G (s s) 1))
+    = (* 2 (if (= 0 1) 1 (* 1 (: s s 0))))
+    = (* 2 (* 1 (: s s 0)))
+    = (* 2 (* 1 (: G s s 0)))
+    = (* 2 (* 1 (if (= 0 0) 1 ...)))
+    = (* 2 (* 1 1))
+    = 2
+\end{lstlisting}
