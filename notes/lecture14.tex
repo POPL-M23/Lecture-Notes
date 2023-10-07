@@ -1,0 +1,125 @@
+\chapter{Lecture 14}
+\chapterauthor{Pratyush Mohanty}
+
+\section{IMPLICIT-REFS: A Language with Implicit References}
+
+The explicit reference design gives a clear account of allocation, dereferencing, and mutation because all these operations are explicit in the programmer’s code.
+
+In this design, every variable denotes a reference. Denoted values are references to locations that contain expressed values. References are no longer
+expressed values. They exist only as the bindings of variables.
+
+\begin{align*}
+    & EXP-VAL = NUM \quad | \quad BOOL \quad | \quad PROC \\
+    & DEN-VAL = LOC \\
+    & STORE = LOC \Rightarrow STORABLE-VAL \\
+    & STORABLE-VAL = EXPVAL \\
+    & ENV = ID \Rightarrow LOC
+\end{align*}
+
+\subparagraph{Abstract Syntax}
+\[
+e ::=
+\begin{array}{ll}
+    \overline{n} \qquad \text{ ... }\\
+    \overline{b} \qquad\text{ ... }\\
+    \text{x } \\
+    \text{let } [x\ e] \ldots e\\
+    ifte \qquad e \text{ } e \text{ ... } e\\
+    \lambda \qquad \overline{x} \text{ ... }e\\    
+    @ \qquad e \text{ } e \text{ ...}\\
+    \text{assign } x\ e\\ 
+\end{array}
+\]
+
+Eval-AST function can be rewritten as-
+\begin{verbatim}
+    > (define (eval-ast a e s)
+    (cases e
+      [num (x) (list s n)]
+      .
+      .
+      .
+      [var-ref (x)
+        (let ([l (lookup-env e x)])
+          (list s (get-ref s l)))]
+      .
+      .
+      .
+      [function (formals body)
+        (list s (closure formals body e))]
+      .
+      .
+      .
+      [let (binds body)
+        (match-let 
+            ([(list ids vs s) (eval-binds e s)])
+          (let ([new-locs (extend-store s (length ids))])
+            (let ([new-store (update-store s new-locs vs)])
+              (let ([new-env (extend-env e ids new-locs)])
+                (eval-ast body new-env new-store))))))))
+\end{verbatim}
+
+\section{PARLANG: A Small Parallel Language}
+
+The language allows us to conclude that it is a language that does not exhibit confluence.
+In PARLANG, a program's execution may result in multiple, possible answers. Answers depend on which of the permitted orders of execution are taken by the system.
+In PARLANG, non-confluence is a feature of the semantics.
+
+\subparagraph{Abstract Syntax}
+The language consists of statements, variables and numbers. There is no lexical scoping, if, functions, or primitive operations on numbers.:
+\begin{align*}
+    x ::= &               &  \scriptstyle{IDENT}  &    \qquad  \mbox{Identifiers}\\
+    n ::= &               &  \scriptstyle{NUM}    &     \qquad  \mbox{Numbers}\\
+    s ::= &               &  \scriptstyle{STMT}    &    \qquad \mbox{Statement}\\
+          & \textbf{done}    &  \scriptstyle{DONE}    &    \qquad \mbox{Done}\\
+          & x:=n          &  \scriptstyle{SET}    &    \qquad \mbox{Assignment}\\
+          & s; s          &  \scriptstyle{SEQ}    &    \qquad \mbox{Sequential}\\
+          & s | s         &  \scriptstyle{PAR}     &    \qquad \mbox{Parallel}\\
+\end{align*}
+
+\subparagraph{Stores} 
+Stores are mapping from identifiers to values
+\begin{align*}
+  G : \text{IDENT} & \rightarrow \text{NUM} \\
+                   & \qquad \qquad \text{STORE}
+\end{align*}
+
+\subparagraph{Rewrite rules} 
+\begin{align*}
+  & G, x:=n \rightarrow \{x:n\}G, \textbf{done} && \text{ASSGN} \\
+  & G, (\textbf{done}; s) \rightarrow G, s && \text{SEQ-DONE} \\
+  & G, (s_1 \,|\, s_2) \rightarrow G, (s_1;s_2) && \text{PAR-1} \\
+  & G, (s_1 \,|\, s_2) \rightarrow G, (s_2;s_1) && \text{PAR-2}
+\end{align*}
+
+\subparagraph{Reduction rules} 
+\begin{align*}
+  \frac{G, s \rightarrow G', s'}{G, s \rightarrow  G', s'} & \quad \text{REWRITE} \\
+  \frac{G, s_1 \rightarrow  G', s_1'}{G, (s_1; s_2) \rightarrow  G', (s_1'; s_2)} & \quad \text{SEQ-COMP}
+\end{align*}
+
+\subsection{Lemma (Termination): The PARLANG reduction system → is terminating}
+For a statement $s$, define the following:
+\begin{enumerate}
+  \item $\text{parsym}(s)$: the number of `|' symbols in $s$.
+  \item $\text{seqsym}(s)$: the number of `;' symbols in $s$.
+  \item $\text{setsym}(s)$: the number of `:=' symbols in $s$.
+  \item $\text{donesym}(s)$: the number of \textbf{done} symbols in $s$.
+\end{enumerate}
+
+For any $s \in \text{Stmt}$, let $|s| : \mathbb{N}_4$ be defined as: \\ 
+\[
+|s| = \langle \text{parsym}(s), \text{seqsym}(s), \text{setsym}(s), \text{donesym}(s) \rangle
+\]
+
+Examples:
+\begin{enumerate}
+\item $|(x:=5|done)| = [1, 0, 1, 0]$
+\item $|(done;done)| = [0, 0, 0, 2]$
+\item $|((x:=4;done)|(x:=3|y:=2))| = [1, 1, 3, 1]$
+\end{enumerate}
+
+Now, let $\sqsubset$ be the subset of the lexicographic ordering over the total ordering $(\mathbb{N}, <)$. Clearly, $\sqsubset$ is a strict well-ordering (a strict total order with every subset having a least element) and hence well-founded.
+
+To show that $\rightarrow$ terminates, we show the following: \\
+if $(G,s) \rightarrow (G', s')$, \text{then } $|s'| \sqsubset |s|$
